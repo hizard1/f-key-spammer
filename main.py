@@ -1,24 +1,39 @@
-"""Simple F-key spammer with adjustable rate."""
+"""Simple F-key spammer with adjustable rate (game-friendly input)."""
 
 import threading
 import time
 import tkinter as tk
 from tkinter import ttk
 
-from pynput.keyboard import Controller
+import pydirectinput
 
-keyboard = Controller()
+# DirectInput-style keys work in fullscreen games; default pause is too slow.
+pydirectinput.PAUSE = 0.0
 
 running = False
 spam_thread: threading.Thread | None = None
+FOCUS_COUNTDOWN_SECS = 3
+
+
+def _set_status(text: str) -> None:
+    root.after(0, lambda: status_var.set(text))
 
 
 def spam_loop(keys_per_second: float) -> None:
     global running
+    for remaining in range(FOCUS_COUNTDOWN_SECS, 0, -1):
+        if not running:
+            return
+        _set_status(f"Starting in {remaining}s — click into your game")
+        time.sleep(1)
+
+    if not running:
+        return
+
+    _set_status(f"ON — pressing F at {keys_per_second:.0f}/s")
     interval = 1.0 / keys_per_second if keys_per_second > 0 else 0.01
     while running:
-        keyboard.press("f")
-        keyboard.release("f")
+        pydirectinput.press("f")
         time.sleep(interval)
 
 
@@ -30,7 +45,8 @@ def start_spam() -> None:
     running = True
     start_btn.config(state=tk.DISABLED)
     stop_btn.config(state=tk.NORMAL)
-    status_var.set(f"ON — pressing F at {rate:.0f}/s")
+    root.iconify()
+    status_var.set(f"Starting in {FOCUS_COUNTDOWN_SECS}s — click into your game")
     spam_thread = threading.Thread(target=spam_loop, args=(rate,), daemon=True)
     spam_thread.start()
 
@@ -40,6 +56,8 @@ def stop_spam() -> None:
     running = False
     start_btn.config(state=tk.NORMAL)
     stop_btn.config(state=tk.DISABLED)
+    root.deiconify()
+    root.lift()
     status_var.set("OFF")
 
 
@@ -99,7 +117,7 @@ ttk.Label(main, textvariable=status_var, foreground="#555").grid(
 
 ttk.Label(
     main,
-    text="Tip: focus the target window before starting.",
+    text="Start minimizes this window; you get 3s to focus the game.",
     font=("Segoe UI", 8),
     foreground="#888",
 ).grid(row=5, column=0, columnspan=2, pady=(12, 0))

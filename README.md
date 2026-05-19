@@ -20,7 +20,8 @@ python main.py
 ## Usage
 
 1. Open the app and use the slider to set **keys per second** (1–100).
-2. Click into the game or app where you want **F** pressed.
-3. Click **Start** to begin spamming; click **Stop** to turn it off.
+2. Click **Start** — the window minimizes and a **3 second countdown** runs.
+3. Alt-tab into your fullscreen game before the countdown ends.
+4. Click **Stop** to turn it off (the window comes back).
 
-Some games block simulated keyboard input. If nothing happens, the target app may be ignoring synthetic keys.
+Uses DirectInput-style key events so fullscreen games usually receive **F**. If a game still ignores input, try running the terminal or Python as administrator.
