@@ -16,8 +16,6 @@ WM_KEYUP = 0x0101
 WM_HOTKEY = 0x0312
 VK_F = 0x46
 VK_F5 = 0x74
-VK_F6 = 0x75
-VK_F7 = 0x76
 
 MOD_NOREPEAT = 0x4000
 PM_REMOVE = 0x0001
@@ -27,8 +25,6 @@ WS_EX_TOOLWINDOW = 0x00000080
 
 MAX_RATE = 6
 HOTKEY_PICK = 1
-HOTKEY_START = 2
-HOTKEY_STOP = 3
 
 
 class MSG(ctypes.Structure):
@@ -189,14 +185,10 @@ def on_rate_change(_value: str) -> None:
 def _register_hotkeys() -> None:
     hwnd = _root_hwnd()
     user32.RegisterHotKey(hwnd, HOTKEY_PICK, MOD_NOREPEAT, VK_F5)
-    user32.RegisterHotKey(hwnd, HOTKEY_START, MOD_NOREPEAT, VK_F6)
-    user32.RegisterHotKey(hwnd, HOTKEY_STOP, MOD_NOREPEAT, VK_F7)
 
 
 def _unregister_hotkeys() -> None:
-    hwnd = _root_hwnd()
-    for hotkey_id in (HOTKEY_PICK, HOTKEY_START, HOTKEY_STOP):
-        user32.UnregisterHotKey(hwnd, hotkey_id)
+    user32.UnregisterHotKey(_root_hwnd(), HOTKEY_PICK)
 
 
 def _poll_hotkeys() -> None:
@@ -205,10 +197,6 @@ def _poll_hotkeys() -> None:
     while user32.PeekMessageW(ctypes.byref(msg), hwnd, WM_HOTKEY, WM_HOTKEY, PM_REMOVE):
         if msg.wParam == HOTKEY_PICK:
             capture_game_window()
-        elif msg.wParam == HOTKEY_START:
-            start_spam()
-        elif msg.wParam == HOTKEY_STOP:
-            stop_spam()
     root.after(80, _poll_hotkeys)
 
 
@@ -254,13 +242,13 @@ pick_btn.grid(row=3, column=0, columnspan=2, pady=(0, 8), sticky="ew")
 btn_row = ttk.Frame(main)
 btn_row.grid(row=4, column=0, columnspan=2, pady=(0, 8))
 
-start_btn = ttk.Button(btn_row, text="Start (F6)", width=11, command=start_spam)
+start_btn = ttk.Button(btn_row, text="Start", width=11, command=start_spam)
 start_btn.grid(row=0, column=0, padx=(0, 6))
 
-stop_btn = ttk.Button(btn_row, text="Stop (F7)", width=11, command=stop_spam, state=tk.DISABLED)
+stop_btn = ttk.Button(btn_row, text="Stop", width=11, command=stop_spam, state=tk.DISABLED)
 stop_btn.grid(row=0, column=1)
 
-status_var = tk.StringVar(value="F5 = pick · F6 = start · F7 = stop")
+status_var = tk.StringVar(value="F5 = pick game")
 ttk.Label(main, textvariable=status_var, foreground="#555", wraplength=260).grid(
     row=5, column=0, columnspan=2
 )

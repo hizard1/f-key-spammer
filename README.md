@@ -23,7 +23,6 @@ python main.py
 
 1. Set **keys per second** on the slider (1–6).
 2. With the **game focused**, press **F5** to pick the game window (or use the Pick button).
-3. Press **F6** to start and **F7** to stop.
-4. Or use the on-screen buttons when the control window is focused.
+3. Use **Start** and **Stop** on the control window.
 
-Hotkeys use `RegisterHotKey` so they can work while the game is focused. If hotkeys do nothing, run Python as administrator.
+**F5** picks the game while it is focused. If it does nothing, run Python as administrator.
