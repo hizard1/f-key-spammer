@@ -1,1 +1,1 @@
-pydirectinput>=1.0.4
+# Uses only the Python standard library (ctypes + tkinter).
